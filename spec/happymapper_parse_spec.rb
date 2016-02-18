@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'pry'
 
 describe HappyMapper do
 
@@ -15,6 +16,14 @@ describe HappyMapper do
         subject.city.should == "Oldenburg"
       end
 
+      it "should parse camelCased elements" do
+        expect(subject.mobile_phone.content).to eql('89473928231')
+      end
+
+      it "should return nil for missing elements" do
+        expect(subject.home_phone).to_not be
+      end
+
       it "should not create a content entry when the xml contents no text content" do
         subject.should_not respond_to :content
       end
@@ -23,6 +32,10 @@ describe HappyMapper do
 
         it "should parse the attributes" do
           subject.country.code.should == "de"
+        end
+
+        it "should parse camelCased attributes" do
+          subject.mobile_phone.operator_name.should == "vodafone"
         end
 
         it "should parse the content" do
@@ -57,6 +70,14 @@ describe HappyMapper do
 
       it "should parse the entire relationship" do
         subject.my_items.item.first.item.name.should == "My first internal item"
+      end
+
+      it 'should allow to call array methods even on has_one elements' do
+        subject.my_items.item.first.item.first.name.should == "My first internal item"
+      end
+
+      it 'should allow pluralized names of elements' do
+        subject.my_items.items.first.items.first.name.should == "My first internal item"
       end
     end
 
@@ -107,7 +128,5 @@ describe HappyMapper do
         called.should == true
       end
     end
-
   end
-
 end

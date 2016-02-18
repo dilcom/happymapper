@@ -493,6 +493,34 @@ module HappyMapper
   end
 
   #
+  # Method missing here is used for solving three cases:
+  # 1) Sometimes XML documents may contain one or several similar tags.
+  #    HappyMapper map them in different ways (when we have one tag it is mapped into node,
+  #    but when we have several tags, they are mapped into array). So sometimes you're expecting
+  #    Array and may call something like #each and get method missing exception. I modified
+  #    method_missing to avoid such cases and return result of [self]#method_name call.
+  # 2) Ruby users usually wait for getters like #cash_ins in cases when there are several nodex called
+  #    cahs_in, but HappyMapper does nothing for such pluralization. Second part of this method
+  #    handles such cases and respond with an object.
+  # 3) In XML file what I get from moy_sklad, I faced with attributes which may be missing
+  #    in some nodes and appear in others. So now method_missing returns nil by default =(
+  def method_missing(method_name, *args, &block)
+    if Array.instance_methods.include?(method_name)
+      @self_array ||= if self.class.elements.count == 1 && !self.class.elements.first.options[:single]
+                        self.send(self.class.elements.first.method_name)
+                      else
+                        [self]
+                      end
+      return @self_array.send(method_name, *args, &block)
+    end
+    if method_name.to_s[-1] == 's'
+      singular_method_name = method_name.to_s.gsub(/ies\Z/, 'y').gsub(/s\Z/, '').to_sym
+      return self.send(singular_method_name, *args, &block) if self.respond_to?(singular_method_name)
+    end
+    nil
+  end
+
+  #
   # Create an xml representation of the specified class based on defined
   # HappyMapper elements and attributes. The method is defined in a way
   # that it can be called recursively by classes that are also HappyMapper
