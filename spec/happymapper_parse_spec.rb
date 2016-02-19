@@ -81,6 +81,23 @@ describe HappyMapper do
       end
     end
 
+    context "several elements nested deep with missing attributes" do
+      subject { described_class.parse fixture_file('items_with_missing_attributes.xml') }
+
+      context "if element is present in limited count of collection's items" do
+        it "should add such an element accessor in all elements of the collection" do
+          expect(subject.my_items.items[1].nested_element).to be
+        end
+      end
+
+      context "if there is has_many relation on ony one of collection elements" do
+        it 'should use has_many on on other elements even if they contain only one element' do
+          expect(subject.my_items.items[1].nested_element.nested_attributes.size).to eql(2)
+          expect(subject.my_items.items[2].nested_element.nested_attributes.size).to eql(1)
+        end
+      end
+    end
+
     context "xml that contains multiple entries" do
 
       subject { described_class.parse fixture_file('multiple_primitives.xml') }

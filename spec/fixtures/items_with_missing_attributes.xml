@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ambigous>
+  <my-items>
+    <item>
+      <name>first item</name>
+    </item>
+    <item>
+      <name>second item</name>
+      <sampleAttribute>attr</sampleAttribute>
+      <nestedElement>
+        <nestedAttribute>na1</nestedAttribute>
+        <nestedAttribute>na2</nestedAttribute>
+      </nestedElement>
+    </item>
+    <item>
+      <name>third item</name>
+      <nestedElement>
+        <nestedAttribute>na2</nestedAttribute>
+      </nestedElement>
+    </item>
+    <item>
+      <name>last item</name>
+    </item>
+  </my-items>
+</ambigous>

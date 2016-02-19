@@ -95,9 +95,45 @@ module HappyMapper
         String
       end
 
-      method = class_instance.elements.find { |e| e.name == underscore(element.name) } ? :has_many : :has_one
+      existing_element = class_instance.elements.find { |e| e.name == underscore(element.name) }
+      method = if existing_element
+        if element_type <= HappyMapper
+          recursive_update_new_type_with_existing(existing_element.type, element_type)
+        end
+        :has_many
+      else
+        :has_one
+      end 
 
       class_instance.send(method,underscore(element.name),element_type, tag: element.name)
+    end
+
+    def recursive_update_new_type_with_existing(existing_type, new_type)
+      attributes_names = new_type.attributes.map(&:name)
+      elements_by_names = new_type.elements.map { |e| [e.name, e] }.to_h
+      existing_type.attributes.each do |a|
+        new_type.attribute(a.name, a.type, a.options) unless attributes_names.include?(a.name)
+      end
+      existing_type.elements.each do |nested_existing_element|
+        nested_new_element = elements_by_names[nested_existing_element.name]
+        if nested_new_element && nested_new_element.type <= HappyMapper
+          nested_new_element.options[:single] = false unless nested_existing_element.options[:single]
+          if nested_existing_element.type <= HappyMapper
+            recursive_update_new_type_with_existing(
+              nested_existing_element.type,
+              nested_new_element.type
+            )
+          else
+            nested_existing_element.type = nested_new_element.type
+          end
+        else
+          new_type.element(
+            nested_existing_element.name,
+            nested_existing_element.type,
+            nested_existing_element.options
+          )
+        end
+      end
     end
 
     #
