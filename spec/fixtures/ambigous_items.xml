@@ -2,6 +2,11 @@
 <ambigous>
   <my-items>
     <item>
+      <nested-relationships>
+        <nested-relationship>
+          <name>Content</name>
+        </nested-relationship>
+      </nested-relationships>
       <name>My first item</name>
       <item><name>My first internal item</name></item>
     </item>

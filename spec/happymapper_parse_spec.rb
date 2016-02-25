@@ -69,15 +69,16 @@ describe HappyMapper do
       subject { described_class.parse fixture_file('ambigous_items.xml') }
 
       it "should parse the entire relationship" do
-        subject.my_items.item.first.item.name.should == "My first internal item"
+        subject.my_items.first.name.should == "My first item"
       end
 
-      it 'should allow to call array methods even on has_one elements' do
-        subject.my_items.item.first.item.first.name.should == "My first internal item"
+      it 'should allow to call array methods even on has_one relationships' do
+        subject.my_items.first.item.first.name.should == "My first internal item"
+        subject.my_items.first.nested_relationships.first.name.should == "Content"
       end
 
-      it 'should allow pluralized names of elements' do
-        subject.my_items.items.first.items.first.name.should == "My first internal item"
+      it 'should allow pluralized names of relationships' do
+        subject.my_items.first.items.first.name.should == "My first internal item"
       end
     end
 

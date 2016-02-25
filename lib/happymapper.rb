@@ -506,7 +506,10 @@ module HappyMapper
   #    in some nodes and appear in others. So now method_missing returns nil by default =(
   def method_missing(method_name, *args, &block)
     if Array.instance_methods.include?(method_name)
-      @self_array ||= if self.class.elements.count == 1 && !self.class.elements.first.options[:single]
+      elements = self.class.elements
+      @self_array ||= if elements.count == 1 &&
+                         (!elements.first.options[:single] ||
+                          self.class.tag_name.downcase.include?(elements.first.name.scan(/[a-z]+/).last))
                         self.send(self.class.elements.first.method_name)
                       else
                         [self]

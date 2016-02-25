@@ -80,9 +80,14 @@ module HappyMapper
       # When a text element has been provided create the necessary
       # HappyMapper content attribute if the text happens to content
       # some content.
+      binding.pry if element.name == ''
 
-      if element.text? and element.content.strip != ""
-        class_instance.content :content, String
+      if element.text?
+        if element.content.strip != ""
+          class_instance.content :content, String
+        else
+          return
+        end
       end
 
       # When the element has children elements, that are not text
